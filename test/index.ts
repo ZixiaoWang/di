@@ -1,11 +1,34 @@
+import 'reflect-metadata';
+import { EgretInject, EgretDIBootstrap, EgretComponent, EgretInjectable } from "..";
+
 import { TEST } from "./test";
-import { EgretInject } from "../Decorators/egret.inject";
 
+EgretDIBootstrap({
+    provider:[
+        TEST.ComponentA,
+        TEST.ComponentB
+    ]
+});
 
-@EgretInject(TEST.ComponentB)
+declare const window;
+
+@EgretComponent({
+    provider: [
+        TEST.ComponentB,
+        { provider: TEST.ComponentA, useValue: 'ABC' },
+        { provider: TEST.ComponentA, useClass: TEST.ComponentB }
+    ],
+    restrict: true
+})
+// @EgretInject(TEST.ComponentB)
 export class Main {
 
-    constructor(c) {
-        c.showInfo();
+    constructor( 
+        private c: TEST.ComponentB
+    ) {
+        console.log(this.c)
+        this.c.showInfo();
     }
 }
+
+window['Main'] = Main;

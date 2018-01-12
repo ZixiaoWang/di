@@ -9,16 +9,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("reflect-metadata");
+var __1 = require("..");
 var test_1 = require("./test");
-var egret_inject_1 = require("../Decorators/egret.inject");
+__1.EgretDIBootstrap({
+    provider: [
+        test_1.TEST.ComponentA,
+        test_1.TEST.ComponentB
+    ]
+});
 var Main = /** @class */ (function () {
     function Main(c) {
-        c.showInfo();
+        this.c = c;
+        console.log(this.c);
+        this.c.showInfo();
     }
     Main = __decorate([
-        egret_inject_1.EgretInject(test_1.TEST.ComponentB),
-        __metadata("design:paramtypes", [Object])
+        __1.EgretComponent({
+            provider: [
+                test_1.TEST.ComponentB,
+                { provider: test_1.TEST.ComponentA, useValue: 'ABC' },
+                { provider: test_1.TEST.ComponentA, useClass: test_1.TEST.ComponentB }
+            ],
+            restrict: true
+        })
+        // @EgretInject(TEST.ComponentB)
+        ,
+        __metadata("design:paramtypes", [test_1.TEST.ComponentB])
     ], Main);
     return Main;
 }());
 exports.Main = Main;
+window['Main'] = Main;

@@ -14,6 +14,12 @@ var Injector = /** @class */ (function () {
             throw new Error(token.name + " \u5DF2\u7ECF\u5B58\u5728\u4E8E\u6B64Injector\uFF0C\u8BF7\u4F7F\u7528useExistInstance\u6216\u8005useValue");
         }
     };
+    Injector.prototype.has = function (token) {
+        return this.map.has(token);
+    };
+    Injector.prototype.setMap = function (map) {
+        this.map = map;
+    };
     Injector.prototype.get = function (token) {
         if (this.map.has(token)) {
             return this.map.get(token);
@@ -22,8 +28,22 @@ var Injector = /** @class */ (function () {
             throw new Error('无法找到此类的实例');
         }
     };
-    Injector.prototype.has = function (token) {
-        return this.map.has(token);
+    Injector.prototype.getFullMap = function () {
+        return this.map;
+    };
+    Injector.prototype.assign = function (injector) {
+        var innerMap = this.map;
+        var outterMap = injector.getFullMap();
+        var newMap = new Map();
+        var newInjector = new Injector();
+        innerMap.forEach(function (val, key) {
+            newMap.set(key, val);
+        });
+        outterMap.forEach(function (val, key) {
+            newMap.set(key, val);
+        });
+        newInjector.setMap(newMap);
+        return newInjector;
     };
     Injector.prototype.construct = function (providerList) {
         var _this = this;
@@ -51,6 +71,9 @@ var Injector = /** @class */ (function () {
         var useVal = [];
         var useClass = [];
         var useExist = [];
+        if (providerList === undefined || providerList.length === 0) {
+            return [];
+        }
         providerList.forEach(function (item) {
             if (typeof item === 'function') {
                 normal.push({ provider: item, useClass: item });
@@ -66,11 +89,11 @@ var Injector = /** @class */ (function () {
                     useExist.push(item);
                 }
                 else {
-                    console.warn(JSON.stringify(item) + "\u672A\u80FD\u6210\u529F\u914D\u7F6E\uFF0C\u8BF7\u4F20\u5165EgretDI.ProviderConfig\u7C7B\u578B");
+                    console.warn(JSON.stringify(item) + "\u672A\u80FD\u6210\u529F\u914D\u7F6E\uFF0C\u8BF7\u4F20\u5165ProviderConfig\u7C7B\u578B");
                 }
             }
             else {
-                throw new Error(item.toString() + "\u4E0D\u662F\u5408\u6CD5\u7684\u7C7B\u578B\uFF0C\u8BF7\u4F20\u5165Function\u6216\u8005EgretDI.ProviderConfig\u7C7B\u578B");
+                throw new Error(item.toString() + "\u4E0D\u662F\u5408\u6CD5\u7684\u7C7B\u578B\uFF0C\u8BF7\u4F20\u5165Function\u6216\u8005ProviderConfig\u7C7B\u578B");
             }
         });
         return normal.concat(useClass, useVal, useExist);

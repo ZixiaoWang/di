@@ -1,40 +1,28 @@
-import { EgretDI } from "../Core/di.core";
-import { ProviderConfig } from "../Core/di.interface";
-import { INJECTABLE_STORE } from "../Store/Injectable.store";
+import { ProviderConfig } from "../Core";
+import { EgretDI } from "../Core";
+import { INJECTABLE_STORE } from "./Injectable.store";
 
-export class Injector {
+export class InstanceStore {
 
-    private map: Map<any, any>;
+    private map: Map<any, any>
 
-    constructor( providerList?: Array<any|ProviderConfig> ) {
-        this.map = this.construct( providerList );
+    constructor() {
+        this.map = new Map<any, any>();
     }
 
-    has(token: any): boolean{
-        return this.map.has(token);
+    add( injectableClassList?: Array<any|ProviderConfig> ): InstanceStore{
+        let newMap = this.construct( injectableClassList );
+        newMap.forEach((val, key) => {
+            this.map.set(key, val);
+        });
+        return this;
     }
 
-    setMap(map: Map<any, any>): void{
-        this.map = map;
-    }
-
-    get(token: any): any{
-        if( this.map.has(token) ){
-            return this.map.get(token);
-        }else{
-            throw new Error('无法找到此类的实例');
-        }
-    }
-
-    getFullMap(): Map<any, any>{
-        return this.map;
-    }
-
-    assign(injector: Injector): Injector{
+    assign(instanceStore: InstanceStore): InstanceStore{
         let innerMap = this.map;
-        let outterMap = injector.getFullMap();
+        let outterMap = instanceStore.getMap();
         let newMap = new Map();
-        let newInjector = new Injector();
+        let newInstanceStore = new InstanceStore();
 
         innerMap.forEach((val, key) => {
             newMap.set(key, val);
@@ -43,17 +31,33 @@ export class Injector {
             newMap.set(key, val);
         })
 
-        newInjector.setMap(newMap);
-        return newInjector;
+        newInstanceStore.setMap(newMap);
+        return newInstanceStore;
     }
 
-    private construct( providerList?: Array<any|ProviderConfig> ): Map<any, any>{
+    has(token: any): boolean{
+        return this.map.has(token);
+    }
+
+    get(token: any): boolean{
+        return this.map.get(token);
+    }
+
+    setMap(map: Map<any, any>){ this.map = map; }
+    getMap(): Map<any, any> { return this.map; }
+
+    private construct( injectableClassList?: Array<any|ProviderConfig> ): Map<any, any>{
         let map: Map<any, any> = new Map();
 
-        if( providerList ){ 
-            let list = this.reSort( providerList );
+        if( injectableClassList ){ 
+            let list = this.reSort( injectableClassList );
+
             list.forEach(item => {
                 let value;
+
+                if( INJECTABLE_STORE.has(item.provider) === false ){
+                    throw new Error('未能找到可注入类，请用@DI.Injectable()修饰');
+                }
 
                 if( item.useClass ){
                     value = EgretDI.instanize(item.provider);
@@ -69,17 +73,17 @@ export class Injector {
         return map;        
     }
 
-    private reSort( providerList?: Array<any|ProviderConfig> ): Array<any>{
+    private reSort( injectableClassList?: Array<any|ProviderConfig> ): Array<any>{
         let normal = [];
         let useVal = [];
         let useClass = [];
         let useExist = [];
 
-        if( providerList === undefined || providerList.length === 0 ){
+        if( injectableClassList === undefined || injectableClassList.length === 0 ){
             return [];
         }
 
-        providerList.forEach(item => {
+        injectableClassList.forEach(item => {
             if( typeof item === 'function' ) {
                 normal.push( { provider: item, useClass: item } );
             }else if( typeof item === 'object' ){
@@ -102,4 +106,4 @@ export class Injector {
 
 }
 
-export const GLOBAL_INJECTOR = new Injector();
+export const INSTANCE_STORE = new InstanceStore();

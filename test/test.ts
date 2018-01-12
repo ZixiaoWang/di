@@ -1,4 +1,4 @@
-import { EgretInjectable } from "../Decorators/egret.injectable";
+import { EgretInjectable } from "..";
 
 export namespace TEST {
     

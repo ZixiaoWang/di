@@ -1,4 +1,11 @@
 export interface ComponentConfig {
-    project: any,
-    provider: Array<any>
+    provider: Array<any>,
+    restrict?: boolean
+}
+
+export interface ProviderConfig {
+    provider: any,
+    useValue: any,
+    useClass: any,
+    useExistInstance: any
 }

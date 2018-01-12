@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var egret_injectable_1 = require("../Decorators/egret.injectable");
+var __1 = require("..");
 var TEST;
 (function (TEST) {
     var ComponentA = /** @class */ (function () {
@@ -19,7 +19,7 @@ var TEST;
             console.log('This is component A');
         };
         ComponentA = __decorate([
-            egret_injectable_1.EgretInjectable(TEST),
+            __1.EgretInjectable(TEST),
             __metadata("design:paramtypes", [])
         ], ComponentA);
         return ComponentA;
@@ -34,7 +34,7 @@ var TEST;
             console.log('This is component B');
         };
         ComponentB = __decorate([
-            egret_injectable_1.EgretInjectable(TEST),
+            __1.EgretInjectable(TEST),
             __metadata("design:paramtypes", [])
         ], ComponentB);
         return ComponentB;
