@@ -1,3 +1,3 @@
-export * from './egret.component';
-export * from './egret.inject';
-export * from './egret.injectable';
+export * from './inject';
+export * from './injectable';
+export * from './component';

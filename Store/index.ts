@@ -1,2 +1,2 @@
-export * from './store.factory';
-export * from './store';
+export { InstanceStore } from './instance.store';
+export { ComponentStore } from './component.store';

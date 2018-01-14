@@ -1,25 +1,24 @@
 import 'reflect-metadata';
-import { Injector } from '../Injector/injector';
-import { INJECTOR_FACTORY } from '../Injector/injector.factory';
 import { ComponentConfig } from './di.interface';
+import { INJECTABLE_STORE } from '../Store/injectable.store'
+import { INSTANCE_STORE } from '../Store/instance.store';
 
-export namespace EgretDI {
+export function instanize(Fn){
+    let args = Reflect.getMetadata('design:paramtypes', Fn) || [];
 
-    export function instanize(Fn){
-        let instance = Object.create(Fn.prototype);
-        let args = Reflect.getMetadata('design:paramTypes', Fn) || [];
+    args = args.map(paramType => {
+        if( INJECTABLE_STORE.has(paramType) ){
+            return instanize(paramType);
+        }else{
+            throw new Error(`${paramType.name} is not an injectable class, please add @DI.Injectable() to register class`);
+        }
+    });
 
-        args = args.map(arg => {
-            return instanize(arg);
-        });
-
-        Fn.apply(instance, args);
-        return instance;
-    }
-
+    let instance = Object.create(Fn.prototype);
+    Fn.apply(instance, args);
+    return instance;
 }
 
-export function EgretDIBootstrap(config: ComponentConfig) {
-    let globalInjector = new Injector(config.provider);
-    INJECTOR_FACTORY.setScope(config.project, globalInjector);
+export function bootstrap(config: ComponentConfig) {
+    INSTANCE_STORE.add( config.provider );
 }

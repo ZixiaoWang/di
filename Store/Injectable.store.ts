@@ -17,3 +17,10 @@ class InjectableStore {
 }
 
 export const INJECTABLE_STORE = new InjectableStore();
+
+
+/**
+ * Injectable Store
+ * Data Structure
+ *      [  ...providers  ]
+ */

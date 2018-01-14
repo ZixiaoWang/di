@@ -1,15 +1,19 @@
 {
   "name": "di",
   "version": "1.0.0",
-  "description": "",
+  "description": "The DI system",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Jacky Wang",
+  "license": "MIT",
   "dependencies": {
-    "@types/node": "^9.3.0",
     "reflect-metadata": "^0.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "^9.3.0",
+    "ts-loader": "^3.2.0",
+    "webpack": "^3.10.0"
   }
 }

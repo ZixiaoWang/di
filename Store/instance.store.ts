@@ -1,6 +1,6 @@
 import { ProviderConfig } from "../Core";
-import { EgretDI } from "../Core";
-import { INJECTABLE_STORE } from "./Injectable.store";
+import { instanize } from "../Core/di.core";
+import { INJECTABLE_STORE } from "./injectable.store";
 
 export class InstanceStore {
 
@@ -60,7 +60,7 @@ export class InstanceStore {
                 }
 
                 if( item.useClass ){
-                    value = EgretDI.instanize(item.provider);
+                    value = instanize(item.provider);
                 }else if( item.useValue ){
                     value = item.useValue;
                 }else if( item.useExistInstance ){
@@ -107,3 +107,14 @@ export class InstanceStore {
 }
 
 export const INSTANCE_STORE = new InstanceStore();
+
+/**
+ * Instance Store
+ * Data Structure
+ *  [
+ *      <Provider, instance>,
+ *      <Provider, instance>,
+ *      <Provider, instance>
+ *      ...
+ *  ]
+ */
