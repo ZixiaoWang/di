@@ -70,6 +70,68 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var instance_store_1 = __webpack_require__(2);
+var ComponentStore = /** @class */ (function () {
+    function ComponentStore() {
+        this.map = new Map();
+    }
+    ComponentStore.prototype.has = function (component) {
+        return this.map.has(component);
+    };
+    ComponentStore.prototype.add = function (component, config) {
+        var componentStoreConfig = { priority: 0, restrict: true, instanceStore: new instance_store_1.InstanceStore() };
+        this.map.set(component, config || componentStoreConfig);
+        return this;
+    };
+    ComponentStore.prototype.get = function (component) {
+        return this.map.get(component);
+    };
+    ComponentStore.prototype.getInstanceByType = function (component, paramType) {
+        if (this.map.has(component)) {
+            var config = this.map.get(component);
+            return config.instanceStore.get(paramType);
+        }
+        else {
+            return null;
+        }
+    };
+    ComponentStore.prototype.register = function (componnet, config) {
+        var componentStoreConfig = { priority: 0, restrict: true, instanceStore: new instance_store_1.InstanceStore() };
+        this.map.set(componnet, config || componentStoreConfig);
+    };
+    ComponentStore.prototype.update = function (component, config) {
+        this.map.set(component, config);
+    };
+    ComponentStore.prototype.getLocalInstanceStore = function (component) {
+        if (this.map.has(component) && this.map.get(component).instanceStore) {
+            return this.map.get(component).instanceStore;
+        }
+        else {
+            return null;
+        }
+    };
+    return ComponentStore;
+}());
+exports.ComponentStore = ComponentStore;
+exports.COMPONENT_STORE = new ComponentStore();
+/**
+ * Component Store
+ * Data Structure
+ *  [
+ *      <Component, { priority, localInjector }>,
+ *      <Component, { priority, localInjector }>,
+ *      ...
+ *  ]
+ */ 
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var InjectableStore = /** @class */ (function () {
     function InjectableStore() {
         this.set = new Set();
@@ -91,14 +153,14 @@ exports.INJECTABLE_STORE = new InjectableStore();
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var di_core_1 = __webpack_require__(5);
-var injectable_store_1 = __webpack_require__(0);
+var injectable_store_1 = __webpack_require__(1);
 var InstanceStore = /** @class */ (function () {
     function InstanceStore() {
         this.map = new Map();
@@ -144,7 +206,7 @@ var InstanceStore = /** @class */ (function () {
                     throw new Error('未能找到可注入类，请用@DI.Injectable()修饰');
                 }
                 if (item.useClass) {
-                    value = di_core_1.instanize(item.provider);
+                    value = di_core_1.instanize(item.useClass);
                 }
                 else if (item.useValue) {
                     value = item.useValue;
@@ -206,57 +268,15 @@ exports.INSTANCE_STORE = new InstanceStore();
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var ComponentStore = /** @class */ (function () {
-    function ComponentStore() {
-        this.map = new Map();
-    }
-    ComponentStore.prototype.has = function (component) {
-        return this.map.has(component);
-    };
-    ComponentStore.prototype.get = function (component) {
-        return this.getArguments(component);
-    };
-    ComponentStore.prototype.register = function (componnet, args) {
-        this.map.set(componnet, args || []);
-    };
-    ComponentStore.prototype.update = function (component, args) {
-        this.map.set(component, args);
-    };
-    ComponentStore.prototype.getArguments = function (component) {
-        return this.map.get(component) || [];
-    };
-    return ComponentStore;
-}());
-exports.ComponentStore = ComponentStore;
-exports.COMPONENT_STORE = new ComponentStore();
-/**
- * Component Store
- * Data Structure
- *  [
- *      <Component, [instance, instance, instance, instance]>,
- *      <Component, [instance, instance]>,
- *      <Component, [instance, instance, instance]>
- *      ...
- *  ]
- */ 
-
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var instance_store_1 = __webpack_require__(1);
+var instance_store_1 = __webpack_require__(2);
 exports.InstanceStore = instance_store_1.InstanceStore;
-var component_store_1 = __webpack_require__(2);
+var component_store_1 = __webpack_require__(0);
 exports.ComponentStore = component_store_1.ComponentStore;
 
 
@@ -295,8 +315,9 @@ module.exports = g;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 __webpack_require__(8);
-var injectable_store_1 = __webpack_require__(0);
-var instance_store_1 = __webpack_require__(1);
+var injectable_store_1 = __webpack_require__(1);
+var instance_store_1 = __webpack_require__(2);
+var component_store_1 = __webpack_require__(0);
 function instanize(Fn) {
     var args = Reflect.getMetadata('design:paramtypes', Fn) || [];
     args = args.map(function (paramType) {
@@ -312,6 +333,51 @@ function instanize(Fn) {
     return instance;
 }
 exports.instanize = instanize;
+function construct(Fn) {
+    var args = Reflect.getMetadata('design:paramtypes', Fn) || [];
+    var config = component_store_1.COMPONENT_STORE.get(Fn);
+    var componentInstance = Object.create(Fn.prototype);
+    if (config === undefined) {
+        throw new Error("Cannot construct " + Fn.name + ", please add @DI.Component decorator");
+    }
+    args = args.map(function (paramType) {
+        // @Inject
+        if (config.priority === 2) {
+            var instance = component_store_1.COMPONENT_STORE.getInstanceByType(Fn, paramType);
+            if (instance === undefined && config.restrict) {
+                throw new Error("Cannot instanize " + paramType.name + " for " + Fn.name + ", please add " + paramType.name + " to the provider list.");
+            }
+            else if (instance === undefined && !config.restrict) {
+                return null;
+            }
+            else {
+                return instance;
+            }
+        }
+        // @Component
+        if (config.priority === 1) {
+            var localInstance = component_store_1.COMPONENT_STORE.getInstanceByType(Fn, paramType);
+            var globalInstance = instance_store_1.INSTANCE_STORE.get(paramType);
+            var instance = localInstance || globalInstance;
+            if (instance === undefined && config.restrict) {
+                throw new Error("Cannot instanize " + paramType.name + " for " + Fn.name + ", please add " + paramType.name + " to the provider list.");
+            }
+            else if (instance === undefined && !config.restrict) {
+                return null;
+            }
+            else {
+                return instance;
+            }
+        }
+        // Other
+        if (isNaN(config.priority) || config.priority < 1 || config.priority > 2) {
+            throw new Error("Incorrect config for " + Fn.name);
+        }
+    });
+    Fn.apply(componentInstance, args);
+    return componentInstance;
+}
+exports.construct = construct;
 function bootstrap(config) {
     instance_store_1.INSTANCE_STORE.add(config.provider);
 }
@@ -328,15 +394,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(7);
 var Decorators_1 = __webpack_require__(10);
 var Store_1 = __webpack_require__(3);
-var injectable_store_1 = __webpack_require__(0);
-var instance_store_1 = __webpack_require__(1);
-var component_store_1 = __webpack_require__(2);
+var injectable_store_1 = __webpack_require__(1);
+var instance_store_1 = __webpack_require__(2);
+var component_store_1 = __webpack_require__(0);
 (function (glo) {
-    glo['$DI'] = glo['$DI'] || {
+    glo['DI'] = glo['DI'] || {
         instanize: Core_1.instanize,
         bootstrap: Core_1.bootstrap,
         Inject: Decorators_1.Inject,
         Injectable: Decorators_1.Injectable,
+        construct: Core_1.construct,
         Component: Decorators_1.Component,
         INJECTABLE_STORE: injectable_store_1.INJECTABLE_STORE,
         INSTANCE_STORE: instance_store_1.INSTANCE_STORE,
@@ -344,7 +411,7 @@ var component_store_1 = __webpack_require__(2);
         InstanceStore: Store_1.InstanceStore,
         ComponentStore: Store_1.ComponentStore
     };
-    console.log('DI system has initialized, now you can use variable $DI.');
+    console.log('DI system has initialized, now you can use variable DI.');
 })(window || global);
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
@@ -1706,25 +1773,16 @@ __export(__webpack_require__(13));
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Store_1 = __webpack_require__(3);
-var component_store_1 = __webpack_require__(2);
+var component_store_1 = __webpack_require__(0);
 function Inject() {
     var providers = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         providers[_i] = arguments[_i];
     }
     return function (target) {
-        var localInjector = new Store_1.InstanceStore().add(providers);
-        var args = Reflect.getMetadata('design:paramtypes', target) || [];
-        args.forEach(function (paramType) {
-            var paramInstance = localInjector.get(paramType);
-            if (paramInstance) {
-                args.push(paramInstance);
-            }
-            else {
-                throw new Error("Cannot find the instance of " + target.name + ", please register " + target.name + " to provider list");
-            }
-        });
-        component_store_1.COMPONENT_STORE.register(target, args);
+        var localInstanceStore = new Store_1.InstanceStore().add(providers || []);
+        var componentConfig = { priority: 2, restrict: true, instanceStore: localInstanceStore };
+        component_store_1.COMPONENT_STORE.register(target, componentConfig);
         return target;
     };
 }
@@ -1738,7 +1796,7 @@ exports.Inject = Inject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var injectable_store_1 = __webpack_require__(0);
+var injectable_store_1 = __webpack_require__(1);
 function Injectable() {
     return function (target) {
         injectable_store_1.INJECTABLE_STORE.register(target);
@@ -1756,24 +1814,13 @@ exports.Injectable = Injectable;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Store_1 = __webpack_require__(3);
-var instance_store_1 = __webpack_require__(1);
-var component_store_1 = __webpack_require__(2);
+var component_store_1 = __webpack_require__(0);
 function Component(config) {
     return function (target) {
-        var strict = config.restrict || true;
-        var localInjector = new Store_1.InstanceStore().add(config.provider || []);
-        var args = Reflect.getMetadata('design:paramtypes', target) || [];
-        args.forEach(function (paramType) {
-            var paramInstance = localInjector.get(paramType) || instance_store_1.INSTANCE_STORE.get(paramType);
-            if (paramInstance === undefined && strict === true) {
-                throw new Error("Cannot find the instance of " + paramType.name + ", please register " + paramType.name + " to provider list");
-            }
-            else {
-                paramInstance = null;
-            }
-            args.push(paramInstance);
-        });
-        component_store_1.COMPONENT_STORE.register(target, args);
+        var strict = !!config.restrict;
+        var localInstanceStore = new Store_1.InstanceStore().add(config.provider || []);
+        var componentConfig = { priority: 1, restrict: strict, instanceStore: localInstanceStore };
+        component_store_1.COMPONENT_STORE.register(target, componentConfig);
         return target;
     };
 }

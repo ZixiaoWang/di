@@ -1,29 +1,52 @@
+import { ComponentStoreConfig } from "../Core/di.interface";
+import { InstanceStore } from "./instance.store";
+
 export class ComponentStore {
 
-    private map: Map<any, any[]>;
+    private map: Map<any, ComponentStoreConfig>;
 
     constructor() {
-        this.map = new Map<any, any[]>();
+        this.map = new Map<any, ComponentStoreConfig>();
     }
 
     has(component: any): boolean {
         return this.map.has(component);
     }
 
-    get(component: any): Array<any> {
-        return this.getArguments(component);
+    add(component: any, config?: ComponentStoreConfig): ComponentStore{
+        let componentStoreConfig: ComponentStoreConfig = { priority: 0, restrict: true, instanceStore: new InstanceStore() };
+        this.map.set(component, config || componentStoreConfig);
+        return this;
     }
 
-    register(componnet: any, args?: Array<any>) {
-        this.map.set(componnet, args || []);
+    get(component: any): ComponentStoreConfig {
+        return this.map.get(component);
     }
 
-    update(component: any, args: Array<any>) {
-        this.map.set(component, args);
+    getInstanceByType(component: any, paramType: any): any{
+        if( this.map.has(component) ){
+            let config: ComponentStoreConfig =  this.map.get(component);
+            return config.instanceStore.get(paramType);
+        }else{
+            return null;
+        }
     }
 
-    getArguments(component: any): any[]{
-        return this.map.get(component) || [];
+    register(componnet: any, config?: ComponentStoreConfig) {
+        let componentStoreConfig: ComponentStoreConfig = { priority: 0, restrict: true, instanceStore: new InstanceStore() };
+        this.map.set(componnet, config || componentStoreConfig);
+    }
+
+    update(component: any, config: ComponentStoreConfig) {
+        this.map.set(component, config);
+    }
+
+    getLocalInstanceStore(component: any): InstanceStore{
+        if( this.map.has(component) && this.map.get(component).instanceStore ) {
+            return this.map.get(component).instanceStore;
+        }else{
+            return null;
+        }
     }
 }
 
@@ -33,9 +56,8 @@ export const COMPONENT_STORE = new ComponentStore();
  * Component Store
  * Data Structure
  *  [
- *      <Component, [instance, instance, instance, instance]>,
- *      <Component, [instance, instance]>,
- *      <Component, [instance, instance, instance]>
+ *      <Component, { priority, localInjector }>,
+ *      <Component, { priority, localInjector }>,
  *      ...
  *  ]
  */

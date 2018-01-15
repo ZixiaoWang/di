@@ -1,6 +1,7 @@
 import { 
     instanize, 
     bootstrap,
+    construct,
     ComponentConfig, 
     ProviderConfig } from './Core';
 import { 
@@ -16,11 +17,12 @@ import { INSTANCE_STORE } from './Store/instance.store';
 import { COMPONENT_STORE } from './Store/component.store';
 
 (function(glo){
-    glo['$DI'] = glo['$DI'] || {
+    glo['DI'] = glo['DI'] || {
         instanize: instanize,
         bootstrap: bootstrap,
         Inject: Inject,
         Injectable: Injectable,
+        construct: construct,
         Component: Component,
         INJECTABLE_STORE: INJECTABLE_STORE,
         INSTANCE_STORE: INSTANCE_STORE,
@@ -28,5 +30,5 @@ import { COMPONENT_STORE } from './Store/component.store';
         InstanceStore: InstanceStore,
         ComponentStore: ComponentStore
     };
-    console.log('DI system has initialized, now you can use variable $DI.');
+    console.log('DI system has initialized, now you can use variable DI.');
 })(window || global);
