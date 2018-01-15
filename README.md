@@ -3,20 +3,62 @@ Dependency Injection Module
 The module was inspired by di.js in @angular.
 
 ### Quick Navigate
-1. [Cookbook](#Cookbook)
-2. [Examples](#Examples)
-3. [Lisence](#Lisence)
+1. Decorator  
+    * [DI.Injectable](#DI.Injectable)
+    * [DI.Inject](#DI.Inject)
+    * [DI.Component](#DI.Component)
+2. Global Variables
+    * [DI.INJECTABLE_STORE](#DI.INJECTABLE_STORE)
+    * [DI.INSTANCE_STORE](#DI.INSTANCE_STORE)
+    * [DI.COMPONENT_STORE](#DI.COMPONENT_STORE)
+3. Functions
+    * [DI.boostrap](#DI.bootstrap)
+    * [DI.construct](#DI.construct)
+    * [DI.instanize](#DI.instanize)
+4. Interface
+    * [DI.componentConfig](#DI.componentConfig) (reference only)
+    * [DI.providerConfig](#DI.providerConfig) (reference only)
+4. [Examples](#Examples)
+5. [Lisence](#Lisence)
 
 ### Cookbook
-##### DI.INJECTABLE_STORE
-A global variable which stores all registered **injectable classes**.
-##### DI.INSTANCE_STORE
-A global variable which stores all bootstraped **injectable classes** and its **instance**.
-##### DI.COMPONENT_STORE
-A global variable which stores all decorated **component classes** and its configurations.
-##### DI.Injectable()
-Use @DI.Injectable() decorator to decorate a class and register the class in ``` DI.INJECTABLE_STORE ``` object.   
-<code>DI.INJECTABLE_STORE</code> is a global object which stores all registered injectable class.
-##### DI.Inject(Provider, Provider, Provider)
-The @DI.Inject(Fn1, Fn2, Fn3...) decorator indicates what provider will be used to instanize the class.   
+#### DI.Injectable
+Use ```@DI.Injectable()``` decorator to register class to ```DI.INJECTABLE_STORE```  
+Otherwise the class cannot be instanized by function ```DI.instanize```
+### DI.Inject
+Use ```@DI.Inject(...Providers)``` decorator to inject providers(functions) to class.   
+The inputed providers will be used to construct instance of decorated class.  
+<small>NOTE: the sequence of providers is NOT restricted</small>
+### DI.Component
+Use ```@DI.Component(config: DI.componentConfig)``` to decorate class.  
+pass [DI.componentConfig](#DI.componentConfig) to decorator to determine the specific providers for constructing class instance.
 
+### DI.bootstrap()
+Example: ``` DI.bootstrap({ provider: [...Provider] }); ```
+This is where **intanizing** started.  
+The instanzing function will generate instaces of inputed Providers and store them to ```DI.INSTANCE_STORE``` as global instance.
+
+### DI.construct(Component)
+The function returns an instance which all dependencies has been injected.
+
+### DI.instanize(InjectableClass)
+The function returns an instance of registered injectable class.
+
+### DI.componentConfig
+```javascript
+    {
+        restrict?: boolean,
+        provider: [Function|DI.providerConfig]
+    }
+```
+<small>NOTE: In restrict mode, if the dependency instance cannot be found, it will throw an Error. Otherwise it will return null</small>
+
+### DI.providerConfig
+```javascript
+    {
+        provider: Function,
+        useValue?: any,
+        useClass?: Function,
+        useExistInstance?: any
+    }
+```

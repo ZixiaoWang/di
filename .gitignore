@@ -1,4 +1,4 @@
 node_modules
 *.js
-!index.js
+!index.web.js
 !webpack.config.js

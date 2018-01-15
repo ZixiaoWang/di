@@ -68,7 +68,6 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var instance_store_1 = __webpack_require__(2);
@@ -131,203 +130,6 @@ exports.COMPONENT_STORE = new ComponentStore();
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var InjectableStore = /** @class */ (function () {
-    function InjectableStore() {
-        this.set = new Set();
-    }
-    InjectableStore.prototype.register = function (fn) {
-        this.set.add(fn);
-    };
-    InjectableStore.prototype.has = function (fn) {
-        return this.set.has(fn);
-    };
-    return InjectableStore;
-}());
-exports.INJECTABLE_STORE = new InjectableStore();
-/**
- * Injectable Store
- * Data Structure
- *      [  ...providers  ]
- */ 
-=======
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var instance_store_1 = __webpack_require__(2);
-var ComponentStore = /** @class */ (function () {
-    function ComponentStore() {
-        this.map = new Map();
-    }
-    ComponentStore.prototype.has = function (component) {
-        return this.map.has(component);
-    };
-    ComponentStore.prototype.add = function (component, config) {
-        var componentStoreConfig = { priority: 0, restrict: true, instanceStore: new instance_store_1.InstanceStore() };
-        this.map.set(component, config || componentStoreConfig);
-        return this;
-    };
-    ComponentStore.prototype.get = function (component) {
-        return this.map.get(component);
-    };
-    ComponentStore.prototype.getInstanceByType = function (component, paramType) {
-        if (this.map.has(component)) {
-            var config = this.map.get(component);
-            return config.instanceStore.get(paramType);
-        }
-        else {
-            return null;
-        }
-    };
-    ComponentStore.prototype.register = function (componnet, config) {
-        var componentStoreConfig = { priority: 0, restrict: true, instanceStore: new instance_store_1.InstanceStore() };
-        this.map.set(componnet, config || componentStoreConfig);
-    };
-    ComponentStore.prototype.update = function (component, config) {
-        this.map.set(component, config);
-    };
-    ComponentStore.prototype.getLocalInstanceStore = function (component) {
-        if (this.map.has(component) && this.map.get(component).instanceStore) {
-            return this.map.get(component).instanceStore;
-        }
-        else {
-            return null;
-        }
-    };
-    return ComponentStore;
-}());
-exports.ComponentStore = ComponentStore;
-exports.COMPONENT_STORE = new ComponentStore();
-/**
- * Component Store
- * Data Structure
- *  [
- *      <Component, { priority, localInjector }>,
- *      <Component, { priority, localInjector }>,
- *      ...
- *  ]
- */ 
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-<<<<<<< HEAD
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var di_core_1 = __webpack_require__(5);
-var injectable_store_1 = __webpack_require__(1);
-var InstanceStore = /** @class */ (function () {
-    function InstanceStore() {
-        this.map = new Map();
-    }
-    InstanceStore.prototype.add = function (injectableClassList) {
-        var _this = this;
-        var newMap = this.construct(injectableClassList);
-        newMap.forEach(function (val, key) {
-            _this.map.set(key, val);
-        });
-        return this;
-    };
-    InstanceStore.prototype.assign = function (instanceStore) {
-        var innerMap = this.map;
-        var outterMap = instanceStore.getMap();
-        var newMap = new Map();
-        var newInstanceStore = new InstanceStore();
-        innerMap.forEach(function (val, key) {
-            newMap.set(key, val);
-        });
-        outterMap.forEach(function (val, key) {
-            newMap.set(key, val);
-        });
-        newInstanceStore.setMap(newMap);
-        return newInstanceStore;
-    };
-    InstanceStore.prototype.has = function (token) {
-        return this.map.has(token);
-    };
-    InstanceStore.prototype.get = function (token) {
-        return this.map.get(token);
-    };
-    InstanceStore.prototype.setMap = function (map) { this.map = map; };
-    InstanceStore.prototype.getMap = function () { return this.map; };
-    InstanceStore.prototype.construct = function (injectableClassList) {
-        var _this = this;
-        var map = new Map();
-        if (injectableClassList) {
-            var list = this.reSort(injectableClassList);
-            list.forEach(function (item) {
-                var value;
-                if (injectable_store_1.INJECTABLE_STORE.has(item.provider) === false) {
-                    throw new Error('未能找到可注入类，请用@DI.Injectable()修饰');
-                }
-                if (item.useClass) {
-                    value = di_core_1.instanize(item.provider);
-                }
-                else if (item.useValue) {
-                    value = item.useValue;
-                }
-                else if (item.useExistInstance) {
-                    value = _this.map.get(item.provider);
-                }
-                map.set(item.provider, value);
-            });
-        }
-        return map;
-    };
-    InstanceStore.prototype.reSort = function (injectableClassList) {
-        var normal = [];
-        var useVal = [];
-        var useClass = [];
-        var useExist = [];
-        if (injectableClassList === undefined || injectableClassList.length === 0) {
-            return [];
-        }
-        injectableClassList.forEach(function (item) {
-            if (typeof item === 'function') {
-                normal.push({ provider: item, useClass: item });
-            }
-            else if (typeof item === 'object') {
-                if (item.useClass) {
-                    useClass.push(item);
-                }
-                else if (item.useValue) {
-                    useVal.push(item);
-                }
-                else if (item.useExistInstance) {
-                    useExist.push(item);
-                }
-                else {
-                    console.warn(JSON.stringify(item) + "\u672A\u80FD\u6210\u529F\u914D\u7F6E\uFF0C\u8BF7\u4F20\u5165ProviderConfig\u7C7B\u578B");
-                }
-            }
-            else {
-                throw new Error(item.toString() + "\u4E0D\u662F\u5408\u6CD5\u7684\u7C7B\u578B\uFF0C\u8BF7\u4F20\u5165Function\u6216\u8005ProviderConfig\u7C7B\u578B");
-            }
-        });
-        return normal.concat(useClass, useVal, useExist);
-    };
-    return InstanceStore;
-}());
-exports.InstanceStore = InstanceStore;
-exports.INSTANCE_STORE = new InstanceStore();
-/**
- * Instance Store
- * Data Structure
- *  [
- *      <Provider, instance>,
- *      <Provider, instance>,
- *      <Provider, instance>
- *      ...
- *  ]
- */ 
-
-
-/***/ }),
-=======
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var InjectableStore = /** @class */ (function () {
@@ -466,26 +268,16 @@ exports.INSTANCE_STORE = new InstanceStore();
 
 
 /***/ }),
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var instance_store_1 = __webpack_require__(2);
 exports.InstanceStore = instance_store_1.InstanceStore;
 var component_store_1 = __webpack_require__(0);
 exports.ComponentStore = component_store_1.ComponentStore;
-=======
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var instance_store_1 = __webpack_require__(2);
-exports.InstanceStore = instance_store_1.InstanceStore;
-var component_store_1 = __webpack_require__(0);
-exports.ComponentStore = component_store_1.ComponentStore;
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 
 
 /***/ }),
@@ -520,78 +312,6 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
-
-Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(8);
-var injectable_store_1 = __webpack_require__(1);
-var instance_store_1 = __webpack_require__(2);
-var component_store_1 = __webpack_require__(0);
-function instanize(Fn) {
-    var args = Reflect.getMetadata('design:paramtypes', Fn) || [];
-    args = args.map(function (paramType) {
-        if (injectable_store_1.INJECTABLE_STORE.has(paramType)) {
-            return instanize(paramType);
-        }
-        else {
-            throw new Error(paramType.name + " is not an injectable class, please add @DI.Injectable() to register class");
-        }
-    });
-    var instance = Object.create(Fn.prototype);
-    Fn.apply(instance, args);
-    return instance;
-}
-exports.instanize = instanize;
-function construct(Fn) {
-    var args = Reflect.getMetadata('design:paramtypes', Fn) || [];
-    var config = component_store_1.COMPONENT_STORE.get(Fn);
-    var componentInstance = Object.create(Fn);
-    if (config === undefined) {
-        throw new Error("Cannot construct " + Fn.name + ", please add @DI.Component decorator");
-    }
-    args = args.map(function (paramType) {
-        // @Inject
-        if (config.priority === 2) {
-            var instance = component_store_1.COMPONENT_STORE.getInstanceByType(Fn, paramType);
-            if (instance === undefined && config.restrict) {
-                throw new Error("Cannot instanize " + paramType.name + " for " + Fn.name + ", please add " + paramType.name + " to the provider list.");
-            }
-            else if (instance === undefined && !config.restrict) {
-                return null;
-            }
-            else {
-                return instance;
-            }
-        }
-        // @Component
-        if (config.priority === 1) {
-            var localInstance = component_store_1.COMPONENT_STORE.getInstanceByType(Fn, paramType);
-            var globalInstance = instance_store_1.INSTANCE_STORE.get(paramType);
-            var instance = localInstance || globalInstance;
-            if (instance === undefined && config.restrict) {
-                throw new Error("Cannot instanize " + paramType.name + " for " + Fn.name + ", please add " + paramType.name + " to the provider list.");
-            }
-            else if (instance === undefined && !config.restrict) {
-                return null;
-            }
-            else {
-                return instance;
-            }
-        }
-        // Other
-        if (isNaN(config.priority) || config.priority < 1 || config.priority > 2) {
-            throw new Error("Incorrect config for " + Fn.name);
-        }
-    });
-    Fn.apply(componentInstance, args);
-    return componentInstance;
-}
-exports.construct = construct;
-function bootstrap(config) {
-    instance_store_1.INSTANCE_STORE.add(config.provider);
-}
-exports.bootstrap = bootstrap;
-=======
 
 Object.defineProperty(exports, "__esModule", { value: true });
 __webpack_require__(8);
@@ -662,7 +382,6 @@ function bootstrap(config) {
     instance_store_1.INSTANCE_STORE.add(config.provider);
 }
 exports.bootstrap = bootstrap;
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 
 
 /***/ }),
@@ -670,7 +389,6 @@ exports.bootstrap = bootstrap;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
 /* WEBPACK VAR INJECTION */(function(global) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Core_1 = __webpack_require__(7);
@@ -695,32 +413,6 @@ var component_store_1 = __webpack_require__(0);
     };
     console.log('DI system has initialized, now you can use variable DI.');
 })(window || global);
-=======
-/* WEBPACK VAR INJECTION */(function(global) {
-Object.defineProperty(exports, "__esModule", { value: true });
-var Core_1 = __webpack_require__(7);
-var Decorators_1 = __webpack_require__(10);
-var Store_1 = __webpack_require__(3);
-var injectable_store_1 = __webpack_require__(1);
-var instance_store_1 = __webpack_require__(2);
-var component_store_1 = __webpack_require__(0);
-(function (glo) {
-    glo['DI'] = glo['DI'] || {
-        instanize: Core_1.instanize,
-        bootstrap: Core_1.bootstrap,
-        Inject: Decorators_1.Inject,
-        Injectable: Decorators_1.Injectable,
-        construct: Core_1.construct,
-        Component: Decorators_1.Component,
-        INJECTABLE_STORE: injectable_store_1.INJECTABLE_STORE,
-        INSTANCE_STORE: instance_store_1.INSTANCE_STORE,
-        COMPONENT_STORE: component_store_1.COMPONENT_STORE,
-        InstanceStore: Store_1.InstanceStore,
-        ComponentStore: Store_1.ComponentStore
-    };
-    console.log('DI system has initialized, now you can use variable DI.');
-})(window || global);
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
@@ -2078,7 +1770,6 @@ __export(__webpack_require__(13));
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Store_1 = __webpack_require__(3);
@@ -2096,25 +1787,6 @@ function Inject() {
     };
 }
 exports.Inject = Inject;
-=======
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Store_1 = __webpack_require__(3);
-var component_store_1 = __webpack_require__(0);
-function Inject() {
-    var providers = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        providers[_i] = arguments[_i];
-    }
-    return function (target) {
-        var localInstanceStore = new Store_1.InstanceStore().add(providers || []);
-        var componentConfig = { priority: 2, restrict: true, instanceStore: localInstanceStore };
-        component_store_1.COMPONENT_STORE.register(target, componentConfig);
-        return target;
-    };
-}
-exports.Inject = Inject;
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 
 
 /***/ }),
@@ -2122,7 +1794,6 @@ exports.Inject = Inject;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var injectable_store_1 = __webpack_require__(1);
@@ -2133,18 +1804,6 @@ function Injectable() {
     };
 }
 exports.Injectable = Injectable;
-=======
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var injectable_store_1 = __webpack_require__(1);
-function Injectable() {
-    return function (target) {
-        injectable_store_1.INJECTABLE_STORE.register(target);
-        return target;
-    };
-}
-exports.Injectable = Injectable;
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 
 
 /***/ }),
@@ -2152,7 +1811,6 @@ exports.Injectable = Injectable;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-<<<<<<< HEAD
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Store_1 = __webpack_require__(3);
@@ -2167,22 +1825,6 @@ function Component(config) {
     };
 }
 exports.Component = Component;
-=======
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Store_1 = __webpack_require__(3);
-var component_store_1 = __webpack_require__(0);
-function Component(config) {
-    return function (target) {
-        var strict = !!config.restrict;
-        var localInstanceStore = new Store_1.InstanceStore().add(config.provider || []);
-        var componentConfig = { priority: 1, restrict: strict, instanceStore: localInstanceStore };
-        component_store_1.COMPONENT_STORE.register(target, componentConfig);
-        return target;
-    };
-}
-exports.Component = Component;
->>>>>>> 99ea4091a7b2a2c9544205f13a09239208cff7f6
 
 
 /***/ })
