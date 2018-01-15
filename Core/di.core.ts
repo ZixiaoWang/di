@@ -23,7 +23,7 @@ export function instanize(Fn){
 export function construct(Fn) {
     let args = Reflect.getMetadata('design:paramtypes', Fn) || [];
     let config: ComponentStoreConfig = COMPONENT_STORE.get(Fn);
-    let componentInstance = Object.create(Fn);
+    let componentInstance = Object.create(Fn.prototype);
 
     if( config === undefined ){
         throw new Error(`Cannot construct ${ Fn.name }, please add @DI.Component decorator`);

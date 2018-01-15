@@ -60,7 +60,7 @@ export class InstanceStore {
                 }
 
                 if( item.useClass ){
-                    value = instanize(item.provider);
+                    value = instanize(item.useClass);
                 }else if( item.useValue ){
                     value = item.useValue;
                 }else if( item.useExistInstance ){
