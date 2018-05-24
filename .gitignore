@@ -1,4 +1,3 @@
 node_modules
 *.js
-!index.web.js
-!webpack.config.js
+.rpt2_cache

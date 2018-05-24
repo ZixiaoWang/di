@@ -4,16 +4,19 @@
   "description": "The DI system",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack -p",
+    "debug": "webpack -d"
   },
   "author": "Jacky Wang",
   "license": "MIT",
   "dependencies": {
-    "reflect-metadata": "^0.1.10"
+    "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
     "@types/node": "^9.3.0",
-    "ts-loader": "^3.2.0",
-    "webpack": "^3.10.0"
+    "@types/reflect-metadata": "^0.1.0",
+    "rollup-plugin-commonjs": "^9.1.3",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-typescript2": "^0.14.0"
   }
 }
