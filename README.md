@@ -1,4 +1,4 @@
-# DI Module
+# DI Module <small>v2</small>
 Dependency Injection Module  
 The module was inspired by di.js in @angular.
 
