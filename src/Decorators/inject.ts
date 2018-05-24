@@ -1,6 +1,6 @@
-import { InstanceStore } from "../Store";
+import { InstanceStore } from "../Store/instance.store";
 import { COMPONENT_STORE } from '../Store/component.store';
-import { ComponentStoreConfig } from "../Core/di.interface";
+import { ComponentStoreConfig } from "../Core/Interface";
 
 export function Inject(...providers){
     return function(target){

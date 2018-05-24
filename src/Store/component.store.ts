@@ -1,4 +1,4 @@
-import { ComponentStoreConfig } from "../Core/di.interface";
+import { ComponentStoreConfig } from "../Core/Interface";
 import { InstanceStore } from "./instance.store";
 
 export class ComponentStore {

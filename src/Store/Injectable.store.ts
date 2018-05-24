@@ -1,4 +1,4 @@
-class InjectableStore {
+export class InjectableStore {
 
     private set: Set<any>;
 

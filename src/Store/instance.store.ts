@@ -1,5 +1,5 @@
-import { ProviderConfig } from "../Core";
-import { instanize } from "../Core/di.core";
+import { ProviderConfig } from "../Core/Interface";
+import { instanize } from "../Core/Core";
 import { INJECTABLE_STORE } from "./injectable.store";
 
 export class InstanceStore {
@@ -56,7 +56,7 @@ export class InstanceStore {
                 let value;
 
                 if( INJECTABLE_STORE.has(item.provider) === false ){
-                    throw new Error('未能找到可注入类，请用@DI.Injectable()修饰');
+                    throw new Error('未能找到可注入类，请用@Injectable()修饰');
                 }
 
                 if( item.useClass ){

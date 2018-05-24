@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "rootDir": "src",
+        "outDir": "dist",
+        "outFile": "index.js",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "target": "es5",
+        "module": "system",
+        "lib": [
+            "es2015",
+            "es2016",
+            "es5",
+            "dom"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

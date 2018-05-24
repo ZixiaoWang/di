@@ -1,2 +1,2 @@
-export * from './di.core';
-export * from './di.interface';
+export * from './Core';
+export * from './Interface';

@@ -65,7 +65,7 @@
                 list.forEach(function (item) {
                     var value;
                     if (INJECTABLE_STORE.has(item.provider) === false) {
-                        throw new Error('未能找到可注入类，请用@DI.Injectable()修饰');
+                        throw new Error('未能找到可注入类，请用@Injectable()修饰');
                     }
                     if (item.useClass) {
                         value = instanize(item.useClass);
@@ -179,6 +179,7 @@
      *  ]
      */
 
+    /// <reference path="../../node_modules/reflect-metadata/reflect-metadata.d.ts" />
     function instanize(Fn) {
         var args = Reflect.getMetadata('design:paramtypes', Fn) || [];
         args = args.map(function (paramType) {
@@ -186,7 +187,7 @@
                 return instanize(paramType);
             }
             else {
-                throw new Error(paramType.name + " is not an injectable class, please add @DI.Injectable() to register class");
+                throw new Error(paramType.name + " is not an injectable class, please add @Injectable() to register class");
             }
         });
         var instance = Object.create(Fn.prototype);
@@ -198,7 +199,7 @@
         var config = COMPONENT_STORE.get(Fn);
         var componentInstance = Object.create(Fn.prototype);
         if (config === undefined) {
-            throw new Error("Cannot construct " + Fn.name + ", please add @DI.Component decorator");
+            throw new Error("Cannot construct " + Fn.name + ", please add @Component decorator");
         }
         args = args.map(function (paramType) {
             // @Inject

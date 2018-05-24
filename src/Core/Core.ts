@@ -1,5 +1,8 @@
+/// <reference path="../../node_modules/reflect-metadata/reflect-metadata.d.ts" />
+
 import 'reflect-metadata';
-import { ComponentConfig, ComponentStoreConfig } from './di.interface';
+
+import { ComponentConfig, ComponentStoreConfig } from './Interface';
 import { INJECTABLE_STORE } from '../Store/injectable.store'
 import { INSTANCE_STORE } from '../Store/instance.store';
 import { COMPONENT_STORE } from '../Store/component.store';
@@ -11,7 +14,7 @@ export function instanize(Fn){
         if( INJECTABLE_STORE.has(paramType) ){
             return instanize(paramType);
         }else{
-            throw new Error(`${paramType.name} is not an injectable class, please add @DI.Injectable() to register class`);
+            throw new Error(`${paramType.name} is not an injectable class, please add @Injectable() to register class`);
         }
     });
 
@@ -26,7 +29,7 @@ export function construct(Fn) {
     let componentInstance = Object.create(Fn.prototype);
 
     if( config === undefined ){
-        throw new Error(`Cannot construct ${ Fn.name }, please add @DI.Component decorator`);
+        throw new Error(`Cannot construct ${ Fn.name }, please add @Component decorator`);
     }
 
     args = args.map(paramType => {
@@ -70,3 +73,4 @@ export function construct(Fn) {
 export function bootstrap(config: ComponentConfig) {
     INSTANCE_STORE.add( config.provider );
 }
+ 
