@@ -48,6 +48,6 @@ export class InstanceStore {
     private reSort(injectableClassList?);
 }
 export const INSTANCE_STORE: InstanceStore;
-export function Component(config: ComponentConfig): (target: any) => any;
+export function Component(config?: ComponentConfig): (target: any) => any;
 export function Inject(...providers: any[]): (target: any) => any;
 export function Injectable(): (target: any) => any;

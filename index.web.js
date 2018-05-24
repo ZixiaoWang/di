@@ -262,12 +262,16 @@
         };
     }
 
-    function Component(config) {
+    function Component(componentConfig) {
         return function (target) {
-            var strict = !!config.restrict;
-            var localInstanceStore = new InstanceStore().add(config.provider || []);
-            var componentConfig = { priority: 1, restrict: strict, instanceStore: localInstanceStore };
-            COMPONENT_STORE.register(target, componentConfig);
+            var strict = false;
+            var localInstanceStore = new InstanceStore();
+            if (componentConfig) {
+                strict = !!componentConfig.restrict;
+                localInstanceStore.add(componentConfig.provider || []);
+            }
+            var theConfig = { priority: 1, restrict: strict, instanceStore: localInstanceStore };
+            COMPONENT_STORE.register(target, theConfig);
             return target;
         };
     }

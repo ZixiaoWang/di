@@ -18,15 +18,15 @@ export function instanize(Fn){
         }
     });
 
-    let instance = Object.create(Fn.prototype);
-    Fn.apply(instance, args);
+    // let instance = Object.create(Fn.prototype);
+    // Fn.apply(instance, args);
+    let instance = new Fn(...args);
     return instance;
 }
 
 export function construct(Fn) {
     let args = Reflect.getMetadata('design:paramtypes', Fn) || [];
     let config: ComponentStoreConfig = COMPONENT_STORE.get(Fn);
-    let componentInstance = Object.create(Fn.prototype);
 
     if( config === undefined ){
         throw new Error(`Cannot construct ${ Fn.name }, please add @Component decorator`);
@@ -66,7 +66,9 @@ export function construct(Fn) {
         }
     });
 
-    Fn.apply(componentInstance, args);
+    // let componentInstance = Object.create(Fn.prototype);
+    // Fn.apply(componentInstance, args);
+    let componentInstance = new Fn(...args);
     return componentInstance;
 }
 
